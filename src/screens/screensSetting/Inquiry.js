@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal, FlatList, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal, FlatList, Alert, KeyboardAvoidingView,  Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const Inquiry = () => {
     const navigation = useNavigation();
@@ -105,72 +106,79 @@ const Inquiry = () => {
     );
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.appName}>문의하기</Text>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Icon name="arrow-back" size={30} color="#2D5E40" />
-                </TouchableOpacity>
-            </View>
-            <View style={styles.content}>
-                <TouchableOpacity
-                        style={styles.writeButton}
-                        onPress={() => setIsModalVisible(true)}
-                    >
-                        <Text style={styles.writeButtonText}>문의 작성하기</Text>
-                    </TouchableOpacity>
-            </View>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={isModalVisible}
-                onRequestClose={() => setIsModalVisible(false)}
-            >
-                <View style={styles.modalContainer}>
-                    <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={() => setIsModalVisible(false)}
-                    >
-                        <Icon name="close" size={30} color="#2D5E40" />
-                    </TouchableOpacity>
-                    <Text style={styles.modalTitle}>문의 작성하기</Text>
-                    <FlatList
-                        data={data}
-                        renderItem={renderCheckbox}
-                        keyExtractor={item => item.id}
-                        numColumns={2}
-                    />
-                    <TextInput
-                        style={styles.textInput}
-                        placeholder="문의 내용을 입력하세요"
-                        placeholderTextColor='gray'
-                        multiline={true}
-                        value={inquiryContent}
-                        onChangeText={text => setInquiryContent(text)}
-                    />
-                    <TouchableOpacity
-                        style={styles.submitButton}
-                        onPress={handleInquirySubmit}
-                        
-                    >
-                        <Text style={styles.submitButtonText}>작성 완료</Text>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }} // 필요에 따라 스타일 조정
+            behavior="height">
+            <ScrollView contentContainerStyle={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.appName}>문의하기</Text>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Icon name="arrow-back" size={30} color="#2D5E40" />
                     </TouchableOpacity>
                 </View>
-            </Modal>
-            <TouchableOpacity onPress={handleInquiry} style={styles.magazineContainer}>
-                            <FlatList
-                            data={dataInquiry}
-                            renderItem={itemRenderer}
+                <View style={styles.content}>
+                    <TouchableOpacity
+                            style={styles.writeButton}
+                            onPress={() => setIsModalVisible(true)}
+                        >
+                            <Text style={styles.writeButtonText}>문의 작성하기</Text>
+                        </TouchableOpacity>
+                </View>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={isModalVisible}
+                    onRequestClose={() => setIsModalVisible(false)}
+                >
+                    <KeyboardAwareScrollView style={styles.container2}>
+                    <View style={styles.modalContainer}>
+                        <TouchableOpacity
+                            style={styles.closeButton}
+                            onPress={() => setIsModalVisible(false)}
+                        >
+                            <Icon name="close" size={30} color="#2D5E40" />
+                        </TouchableOpacity>
+                        <Text style={styles.modalTitle}>문의 작성하기</Text>
+                        <FlatList
+                            data={data}
+                            renderItem={renderCheckbox}
                             keyExtractor={item => item.id}
+                            numColumns={2}
                         />
-            </TouchableOpacity>
-        </ScrollView>
+                        <TextInput
+                            style={styles.textInput}
+                            placeholder="문의 내용을 입력하세요"
+                            placeholderTextColor='gray'
+                            multiline={true}
+                            value={inquiryContent}
+                            onChangeText={text => setInquiryContent(text)}
+                        />
+                        <TouchableOpacity
+                            style={styles.submitButton}
+                            onPress={handleInquirySubmit}
+                            
+                        >
+                            <Text style={styles.submitButtonText}>작성 완료</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </KeyboardAwareScrollView>
+                </Modal>
+                <TouchableOpacity onPress={handleInquiry} style={styles.magazineContainer}>
+                                <FlatList
+                                data={dataInquiry}
+                                renderItem={itemRenderer}
+                                keyExtractor={item => item.id}
+                            />
+                </TouchableOpacity>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         padding: 20,
+        flex: 1,
     },
     header: {
         flexDirection: 'row',
@@ -239,25 +247,25 @@ const styles = StyleSheet.create({
         borderColor: '#2D5E40',
         borderRadius: 5,
         padding: 10,
-        top: -250,
         minHeight: 100,
         textAlignVertical: 'top',
         color: 'black',
         height: 300,
+        
     },
     submitButton: {
         backgroundColor: '#8CB972',
         paddingVertical: 10,
         borderRadius: 5,
         alignItems: 'center',
-        top: -230,
+        top: 10,
     },
     submitButtonText: {
         fontSize: 18,
         color: 'white',
     },
     closeButton: {
-        right: -310,
+        left: 310,
     },
     dateContainer: {
         position: 'absolute',
@@ -291,6 +299,11 @@ const styles = StyleSheet.create({
         color: '#2D5E40',
         fontWeight: 'bold',
     },
+    container2: {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
 });
 
 export default Inquiry;
+
+

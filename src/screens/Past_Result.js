@@ -22,6 +22,9 @@ const Past_Result = () => {
                     식물의 상태와 관련된 정보를
                     자세히 설명해주세요.
                 </Text>
+            <TouchableOpacity onPress={() => updateBookmark(someItem)}> {/* updateBookmark 함수 호출 */}
+                
+            </TouchableOpacity>
         </View>
     );
 };

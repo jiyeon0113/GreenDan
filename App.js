@@ -25,7 +25,7 @@ import Result from './src/screens/Result';
 
 import Past_Result from './src/screens/Past_Result';
 
-import Result_ from './src/screens/screensPhoto/Result_';
+import Result_ from './src/screens/Result_';
 
 import Mypage from './src/screens/screensSetting/Mypage';
 import Configuration from './src/screens/screensSetting/Configuration';

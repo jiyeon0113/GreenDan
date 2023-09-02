@@ -114,7 +114,7 @@ const UseGuide = () => {
         <View style={styles.container}>
         {/* 배경 화면 */}
         {popupIndex === 0 && <Main />}
-        {popupIndex === 1 && <MyRecord_bar />}
+        {popupIndex === 1 && <Result />}
         {popupIndex === 2 && <Camera />}
         {popupIndex === 3 && <Setting />}
 

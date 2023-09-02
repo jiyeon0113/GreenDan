@@ -1,11 +1,35 @@
 import React, { useState,  useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Result from './Result';
 
-const Result_ = ({ route }) => {
+const Result_ = ({route}) => {
     const navigation = useNavigation();
     const { title, image, explanation, date, bookmarked, updateBookmark } = route.params;
+
+    const renderItem = ({ item }) => (
+        <TouchableOpacity
+            style={styles.magazineItem}
+            onPress={() => handleResult(item)}
+        >
+            <View style={styles.imageContainer}>
+                <Image source={item.image} style={styles.image} />
+                <View style={styles.infoContainer}>
+                    <Text style={styles.datetime}>Date: {item.datetime}</Text>
+                    <TouchableOpacity style={styles.bookmarkContainer}>
+                        <Icon
+                            name={item.bookmarked ? 'bookmark' : 'bookmark-border'}
+                            size={24}
+                            color={item.bookmarked ? 'blue' : 'gray'}
+                        />
+                    </TouchableOpacity>
+                </View>
+                <Text style={styles.smallTitle}>{item.title}</Text>
+            </View>
+        </TouchableOpacity>
+    );
+
 
     const [isBookmarked, setIsBookmarked] = useState(bookmarked);
 
@@ -18,7 +42,6 @@ const Result_ = ({ route }) => {
         setIsBookmarked(updatedBookmark);
         updateBookmark({ id: route.params.id, bookmarked: updatedBookmark });
     };
-    
 
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
