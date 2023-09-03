@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    Image,
+    View, Text,
+    StyleSheet, Image,
     TouchableOpacity,
     FlatList,
     Alert,
@@ -12,27 +10,54 @@ import {
 import Input, { KeyboardTypes, ReturnKeyTypes } from '../components/Input';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import versionCheck from 'react-native-version-check'; // 추가: react-native-version-check 라이브러리를 임포트
 
 const Login = () => {
     const navigation = useNavigation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [token, setToken] = useState('');
+    const [currentVersion, setCurrentVersion] = useState('vol 0.0.9'); // 추가: 현재 앱 버전 상태 추가
+    const [latestVersion, setLatestVersion] = useState('vol 0.0.9'); // 추가: 최신 앱 버전 상태 추가
 
     useEffect(() => {
         const getToken = async () => {
-            try {
-                const accessToken = await AsyncStorage.getItem('authoToken');
-                if (accessToken !== null) {
-                    setToken(accessToken);
-                } else {
-                    console.error('authToken이 없음!!');
-                }
-            } catch (error) {
-                console.error('토큰 에러 : ', error);
+        try {
+            const accessToken = await AsyncStorage.getItem('authToken');
+            if (accessToken !== null) {
+            setToken(accessToken);
+            } else {
+            console.error('authToken이 없음!!');
             }
+        } catch (error) {
+            console.error('토큰 에러 : ', error);
+        }
         };
         getToken();
+
+        // 추가: 앱 버전 확인 코드
+        async function checkAppVersion() {
+        const appVersion = await versionCheck.getAppVersion();
+        setCurrentVersion(appVersion);
+
+        try {
+            const latest = await versionCheck.getLatestVersion({
+            provider: 'playStore', // 또는 'appStore' (iOS) 를 사용할 수 있습니다.
+            });
+            setLatestVersion(latest);
+
+            if (latest && appVersion !== latest) {
+            console.log('업데이트가 필요합니다.');
+            // 업데이트 필요 시 사용자에게 알림을 보여주거나 업데이트를 유도하는 로직 추가
+            } else {
+            console.log('최신 버전을 사용 중입니다.');
+            }
+        } catch (error) {
+            console.error('버전 확인 에러 : ', error);
+        }
+        }
+
+        checkAppVersion();
     }, []);
 
     const isEmailValid = email => {
@@ -48,41 +73,41 @@ const Login = () => {
         navigation.navigate('TermsScreen');
     };
 
-    const handleMainScreen = async () => {
+    const handleLogin = async () => {
+        if (!isLoginEnabled()) {
+        if (email.length === 0 || password.length === 0) {
+            Alert.alert('로그인 실패', '아이디와 비밀번호를 모두 입력해주세요.', [{ text: '확인' }]);
+        } else if (!isEmailValid(email)) {
+            Alert.alert('로그인 실패', '올바른 이메일 형식이 아닙니다. 다시 확인해주세요.', [{ text: '확인' }]);
+        }
+        } else {
+        // Simulate a successful login
+        Alert.alert('로그인 성공', '로그인에 성공했습니다.', [{ text: '확인' }]);
+        }
+
         try {
-            const headers = new Headers({
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            });
+        const headers = new Headers({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        });
 
-            const djServer = await fetch('http:192.168.1.13:8000/accounts/dj-rest-auth/login/', {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    email,
-                    password,
-                }),
-            });
+        const djServer = await fetch('http://192.168.1.102:8000/accounts/dj-rest-auth/login/', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+            email,
+            password,
+            }),
+        });
 
-            if (!isLoginEnabled()) {
-                if (email.length === 0 || password.length === 0) {
-                    Alert.alert('로그인 실패', '아이디와 비밀번호를 모두 입력해주세요.', [{ text: '확인' }]);
-                } else if (!isEmailValid(email)) {
-                    Alert.alert('로그인 실패', '올바른 이메일 형식이 아닙니다. 다시 확인해주세요.', [{ text: '확인' }]);
-                }
-            } else {
-                // Simulate a successful login
-                Alert.alert('로그인 성공', '로그인에 성공했습니다.', [{ text: '확인' }]);
-            }
-
-            if (Response.status === 200) {
-                navigation.navigate('Home', { token });
-            } else {
-                const responseData = await response.json();
-                console.error('API 요청 실패 : ', responseData);
-            }
+        if (djServer.status === 200) {
+            navigation.navigate('Home', { token });
+        } else {
+            const responseData = await djServer.json();
+            console.error('API 요청 실패 : ', responseData);
+        }
         } catch (error) {
-            console.error(error); // catch 블록 추가
+        console.error('API 요청 실패:', error)
         }
     };
 
@@ -97,10 +122,10 @@ const Login = () => {
 
     const renderItem = ({ item }) => (
         <TouchableOpacity
-            style={styles.button}
-            onPress={item.onPress}
+        style={styles.button}
+        onPress={item.onPress}
         >
-            <Text style={styles.textButton}>{item.title}</Text>
+        <Text style={styles.textButton}>{item.title}</Text>
         </TouchableOpacity>
     );
 
@@ -128,7 +153,7 @@ const Login = () => {
             />
             <TouchableOpacity
                 style={styles.mainButton}
-                onPress={handleMainScreen}
+                onPress={handleLogin}
             >
                 <Text style={styles.mainButtonText}>Login</Text>
             </TouchableOpacity>
@@ -139,7 +164,10 @@ const Login = () => {
                 horizontal
                 contentContainerStyle={styles.buttonContainer}
             />
-            <Text style={styles.text}>vol.0.9</Text>
+                <View>
+                    <Text style={styles.text}>현재 버전: {currentVersion}</Text>
+                    <Text style={styles.text}>최신 버전: {latestVersion}</Text> 
+                </View>
         </View>
     );
 };
@@ -214,4 +242,3 @@ const styles = StyleSheet.create({
 });
 
 export default Login;
-
